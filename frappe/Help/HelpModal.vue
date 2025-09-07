@@ -70,11 +70,11 @@ import FeatherIcon from '../../src/components/FeatherIcon.vue'
 const props = defineProps({
   appName: {
     type: String,
-    default: 'frappecrm',
+    default: 'emrplus',
   },
   title: {
     type: String,
-    default: 'Frappe CRM',
+    default: 'EMR Plus',
   },
   logo: {
     type: Object,
@@ -98,7 +98,7 @@ const props = defineProps({
   },
   docsLink: {
     type: String,
-    default: 'https://docs.frappe.io/crm',
+    default: 'https://docs.frappe.io/healthcare',
   },
 })
 

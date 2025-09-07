@@ -84,11 +84,11 @@ import Badge from '../../src/components/Badge/Badge.vue'
 const props = defineProps({
   appName: {
     type: String,
-    default: 'frappecrm',
+    default: 'emrplus',
   },
   title: {
     type: String,
-    default: 'Frappe CRM',
+    default: 'EMR Plus',
   },
   logo: {
     type: Object,

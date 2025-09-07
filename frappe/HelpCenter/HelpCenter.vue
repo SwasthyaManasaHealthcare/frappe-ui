@@ -16,9 +16,14 @@
       class="flex justify-between items-center text-base text-ink-gray-5 mx-2"
     >
       <div>All articles</div>
-      <Button variant="ghost" @click="openDocs">
-        <FeatherIcon name="arrow-up-right" class="h-4 text-ink-gray-5" />
-      </Button>
+      <div class="flex items-center gap-2">
+        <div v-if="wikiAvailable" class="text-xs text-green-600 font-medium">
+          📚 Wiki Available
+        </div>
+        <Button variant="ghost" @click="openDocs">
+          <FeatherIcon name="arrow-up-right" class="h-4 text-ink-gray-5" />
+        </Button>
+      </div>
     </div>
     <div class="flex flex-col gap-1.5 overflow-y-auto">
       <div
@@ -70,13 +75,14 @@ import { ref, computed, onMounted } from 'vue'
 const props = defineProps({
   docsLink: {
     type: String,
-    default: 'https://docs.frappe.io/crm',
+    default: 'https://docs.frappe.io/healthcare',
   },
 })
 
 const searchInput = ref(null)
 const search = ref('')
 const articles = defineModel()
+const wikiAvailable = ref(false)
 
 const parsedArticles = computed(() => {
   if (!search.value) return articles.value
@@ -100,15 +106,43 @@ const parsedArticles = computed(() => {
   })
 })
 
-function openDocs() {
-  window.open(props.docsLink, '_blank')
+async function checkWikiInstalled() {
+  try {
+    const response = await fetch('/api/method/emr_plus.api.wiki.check_wiki_availability', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Frappe-CSRF-Token': window.csrf_token
+      }
+    })
+    const data = await response.json()
+    return data.message && data.message.available
+  } catch (error) {
+    console.error('Wiki availability check failed:', error)
+    return false
+  }
 }
 
-function openDoc(name) {
-  window.open(`${props.docsLink}/${name}`, '_blank')
+async function openDocs() {
+  const wikiInstalled = await checkWikiInstalled()
+  if (wikiInstalled) {
+    window.open('/emr-plus-docs', '_blank')
+  } else {
+    window.open(props.docsLink, '_blank')
+  }
 }
 
-onMounted(() => {
+async function openDoc(name) {
+  const wikiInstalled = await checkWikiInstalled()
+  if (wikiInstalled) {
+    window.open(`/emr-plus-docs/${name}`, '_blank')
+  } else {
+    window.open(`${props.docsLink}/${name}`, '_blank')
+  }
+}
+
+onMounted(async () => {
   searchInput.value?.el?.focus()
+  wikiAvailable.value = await checkWikiInstalled()
 })
 </script>
